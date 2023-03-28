@@ -19,7 +19,10 @@ const SignUp = () => {
     email: '',
     password: '',
   });
+
+  const { name, email, password } = formData;
   const navigate = useNavigate();
+
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
@@ -54,7 +57,6 @@ const SignUp = () => {
     }
   };
 
-  const { name, email, password } = formData;
   return (
     <section>
       <h1 className="text-3xl text-center mt-6 font-bold">Sign Up</h1>
