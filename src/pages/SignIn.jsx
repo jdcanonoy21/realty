@@ -5,7 +5,7 @@ import OAuth from '../components/OAuth';
 import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { toast } from 'react-toastify';
 
-export default function SignIn() {
+const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
@@ -19,7 +19,7 @@ export default function SignIn() {
       [e.target.id]: e.target.value,
     }));
   }
-  async function onSubmit(e) {
+  const onSubmit = async (e) => {
     e.preventDefault();
     try {
       const auth = getAuth();
@@ -34,7 +34,7 @@ export default function SignIn() {
     } catch (error) {
       toast.error('Bad user credentials');
     }
-  }
+  };
   return (
     <section>
       <h1 className="text-3xl text-center mt-6 font-bold">Sign In</h1>
@@ -111,4 +111,6 @@ export default function SignIn() {
       </div>
     </section>
   );
-}
+};
+
+export default SignIn;
