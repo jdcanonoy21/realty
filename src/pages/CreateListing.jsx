@@ -10,20 +10,20 @@ import {
 import { getAuth } from 'firebase/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
-import { db } from './../firebase';
+import { db } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 
-const CreateListing = () => {
-  const navigate = useNavigate;
+export default function CreateListing() {
+  const navigate = useNavigate();
   const auth = getAuth();
-  const [geolocationEnabled, setGeolocationEnabled] = useState(false);
+  const [geolocationEnabled, setGeolocationEnabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     type: 'rent',
     name: '',
     bedrooms: 1,
     bathrooms: 1,
-    parking: 1,
+    parking: false,
     furnished: false,
     address: '',
     description: '',
@@ -34,7 +34,6 @@ const CreateListing = () => {
     longitude: 0,
     images: {},
   });
-
   const {
     type,
     name,
@@ -51,8 +50,7 @@ const CreateListing = () => {
     longitude,
     images,
   } = formData;
-
-  const onChange = (e) => {
+  function onChange(e) {
     let boolean = null;
     if (e.target.value === 'true') {
       boolean = true;
@@ -67,16 +65,15 @@ const CreateListing = () => {
         images: e.target.files,
       }));
     }
-    // Text/Bolean/Number
+    // Text/Boolean/Number
     if (!e.target.files) {
       setFormData((prevState) => ({
         ...prevState,
         [e.target.id]: boolean ?? e.target.value,
       }));
     }
-  };
-
-  const onSubmit = async (e) => {
+  }
+  async function onSubmit(e) {
     e.preventDefault();
     setLoading(true);
     if (+discountedPrice >= +regularPrice) {
@@ -84,21 +81,21 @@ const CreateListing = () => {
       toast.error('Discounted price needs to be less than regular price');
       return;
     }
-
     if (images.length > 6) {
       setLoading(false);
-      toast.error('Maximum of 6 images only');
+      toast.error('maximum 6 images are allowed');
       return;
     }
     let geolocation = {};
+    let location;
     if (geolocationEnabled) {
-      console.log('geo enabled');
+      console.log('... geolocation enable');
     } else {
       geolocation.lat = latitude;
       geolocation.lng = longitude;
     }
 
-    const storeImage = async (image) => {
+    async function storeImage(image) {
       return new Promise((resolve, reject) => {
         const storage = getStorage();
         const filename = `${auth.currentUser.uid}-${image.name}-${uuidv4()}`;
@@ -134,7 +131,7 @@ const CreateListing = () => {
           }
         );
       });
-    };
+    }
 
     const imgUrls = await Promise.all(
       [...images].map((image) => storeImage(image))
@@ -159,18 +156,17 @@ const CreateListing = () => {
     setLoading(false);
     toast.success('Listing created');
     navigate(`/category/${formDataCopy.type}/${docRef.id}`);
-  };
+  }
 
   if (loading) {
     return <Spinner />;
   }
-
   return (
     <main className="max-w-md px-2 mx-auto">
-      <h1 className="text-3xl text-center mt-6 font-bold">Create Listing</h1>
+      <h1 className="text-3xl text-center mt-6 font-bold">Create a Listing</h1>
       <form onSubmit={onSubmit}>
         <p className="text-lg mt-6 font-semibold">Sell / Rent</p>
-        <div className="flex ">
+        <div className="flex">
           <button
             type="button"
             id="type"
@@ -182,7 +178,7 @@ const CreateListing = () => {
                 : 'bg-slate-600 text-white'
             }`}
           >
-            Sell
+            sell
           </button>
           <button
             type="button"
@@ -212,7 +208,7 @@ const CreateListing = () => {
         />
         <div className="flex space-x-6 mb-6">
           <div>
-            <p className="text-lg font-semibold ">Beds</p>
+            <p className="text-lg font-semibold">Beds</p>
             <input
               type="number"
               id="bedrooms"
@@ -221,20 +217,20 @@ const CreateListing = () => {
               min="1"
               max="50"
               required
-              className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-700 rounded duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+              className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 text-center"
             />
           </div>
           <div>
-            <p className="text-lg font-semibold ">Bath</p>
+            <p className="text-lg font-semibold">Baths</p>
             <input
               type="number"
-              id="bedrooms"
+              id="bathrooms"
               value={bathrooms}
               onChange={onChange}
               min="1"
               max="50"
               required
-              className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-700 rounded duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 mb-6"
+              className="w-full px-4 py-2 text-xl text-gray-700 bg-white border border-gray-300 rounded transition duration-150 ease-in-out focus:text-gray-700 focus:bg-white focus:border-slate-600 text-center"
             />
           </div>
         </div>
@@ -435,6 +431,4 @@ const CreateListing = () => {
       </form>
     </main>
   );
-};
-
-export default CreateListing;
+}
